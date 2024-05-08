@@ -1,0 +1,168 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Sign Up
+    style.
+      body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f0f0f0;
+      }
+
+      .container {
+        max-width: 400px;
+        margin: 100px auto;
+        padding: 20px;
+        border-radius: 10px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .logo {
+        display: block;
+        margin: 0 auto 20px;
+      }
+
+      h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+      }
+
+      form {
+        text-align: center;
+      }
+
+      .input-group {
+        margin-bottom: 15px;
+      }
+
+      label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      input[type="text"],
+      input[type="email"],
+      input[type="password"],
+      button[type="submit"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      button[type="submit"] {
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+      }
+
+      button[type="submit"]:hover {
+        background-color: #0056b3;
+      }
+
+      p {
+        text-align: center;
+        margin-top: 15px;
+      }
+
+      a {
+        color: #007bff;
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+      .success-card {
+        border: 1px solid #66e72e;
+        border-radius: 5px;
+        background-color: #ffe6e6;
+        padding: 10px;
+        margin-bottom: 20px;
+      }
+
+      .success-message {
+        color: #66e72e;
+        font-weight: bold;
+      }
+      .error-card {
+        border: 1px solid #ff6347;
+        border-radius: 5px;
+        background-color: #ffe6e6;
+        padding: 10px;
+        margin-bottom: 20px;
+      }
+
+      .error-message {
+        color: #ff6347;
+        font-weight: bold;
+      }
+
+  body
+    .container
+      img.logo(src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/clubhouse-icon.png",style="width: 100px; height: 100px;", alt="Logo")
+      h2 Create an Account
+      if success
+        .success-card
+          p.success-message= success
+      if error
+        .error-card
+          p.error-message= error
+      form(id="signupForm", onsubmit="return userSignUp()")
+        .input-group
+          label(for="username") Username
+          input(type="text", id="username", name="username", required)
+        .input-group
+          label(for="email") Email
+          input(type="email", id="email", name="email", required)
+        .input-group
+          label(for="password") Password
+          input(type="password", id="password", name="password", required)
+        button(type="submit") Sign Up
+      p Already have an account?
+        a(href="/signin") Sign In
+
+  script.
+    function userSignUp() {
+      console.log("New Method userSignUp")
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      fetch('/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, email, password })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("DATAT", data)
+        if (data.data.token) {
+          // Registration successful
+          const token = data.data.token;
+          console.log("data",data.data)
+          const additionalData = { id: data.data.id , name: data.data.name };
+          const dataToStore = { token: token, user: additionalData };
+          localStorage.setItem('userData', JSON.stringify(dataToStore));
+          console.log("SET STORAGE TOKEN...", token)
+          window.location.href = '/hallroom';
+        } else {
+          // Registration failed
+          const error = data.message || 'Registration failed.';
+          document.querySelector('.error-message').textContent = error;
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        document.querySelector('.error-message').textContent = 'Internal server error. Please try again later.';
+      });
+      // Prevent form submission
+      return false;
+    }

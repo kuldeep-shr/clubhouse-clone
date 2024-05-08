@@ -1,0 +1,225 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Clubhouse Invitation Room
+    style.
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f2f2f2;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      .container {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        width: 400px;
+      }
+      h1 {
+        text-align: center;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+      }
+      input[type="text"], select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+      .invitation-link {
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+        margin-top: 10px;
+        word-wrap: break-word;
+      }
+      #copyLinkBtn {
+        width: auto;
+        padding: 5px 10px;
+        font-size: 14px;
+        margin-top: 10px;
+        margin-left: 10px;
+      }
+      .success-message {
+        display: none;
+        background-color: #28a745;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+        text-align: center;
+      }
+      button {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 10px;
+      }
+  body
+    div.container
+      h1#usernameHeading Let's start a room! 🚪
+      .form-group
+        label(for="roomName") Enter the Room Name:
+        input(type="text" id="roomName" placeholder="Enter room name...")
+      .form-group
+        label(for="userList") Select User:
+        select(id="userList")
+          //- Add more options as needed for other users
+      button(id="createInvitationBtn" onclick="createInvitation()") Create Invitation Link
+      //- Invitation Link div
+      .invitation-link#invitationLink(style="display: none;")
+        | Invitation link:
+        br
+        span#linkContent
+      //- Copy Link button
+      button#copyLinkBtn(onclick="copyLink()") Copy Link
+      //- Success Message
+      div.success-message#successMessage Invitation link copied to clipboard
+      //- Submit Button
+      button(id="submitBtn" onclick="createRoom()") Submit
+  script.
+    let invitationLink = '';
+    let hashLink='';
+    // Extract token from localStorage
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('userData');
+    const parsedUserDetails=JSON.parse(user)
+
+    // Function to fetch user list from the API
+    async function fetchUserList() {
+      try {
+        const response = await fetch('/users', {
+          headers: {
+            'Authorization': `Bearer ${parsedUserDetails.token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch user list');
+        }
+        const data = await response.json();
+        console.log("users list",data)
+        return data;
+      } catch (error) {
+        console.error('Error fetching user list:', error);
+        return [];
+      }
+    }
+
+    async function populateUserList() {
+      const userList = await fetchUserList();
+      const userListSelect = document.getElementById('userList');
+      userList.data.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.id;
+        option.textContent = user.name;
+        userListSelect.appendChild(option);
+      });
+    }
+
+    populateUserList();
+
+
+    async function createHash(input) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(input);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+    }
+
+    // Function to create invitation link
+    async function createInvitation() {
+      const roomName = document.getElementById('roomName').value;
+      const selectedUser = document.getElementById('userList').value;
+      const userName = document.getElementById('userList').selectedOptions[0].text;
+      let role = 'listener'; // Default role
+      if (selectedUser === '1') {
+        role = 'speaker';
+      }
+      
+        const timestamp = Date.now().toString();
+        const input = roomName + timestamp;
+        hashLink = await createHash(input);
+
+      // Logic to generate invitation link based on role
+      invitationLink = `http://www.example.com/room=${hashLink}&roomName=${encodeURIComponent(roomName)}`;
+      const invitationLinkDiv = document.getElementById('invitationLink');
+      invitationLinkDiv.style.display = 'block';
+      document.getElementById('linkContent').textContent = invitationLink;
+    }
+
+    // Function to copy invitation link
+    function copyLink() {
+      const invitationLink = document.getElementById('linkContent').textContent;
+      navigator.clipboard.writeText(invitationLink)
+        .then(() => {
+          const successMessage = document.getElementById('successMessage');
+          successMessage.style.display = 'block';
+          setTimeout(() => {
+            successMessage.style.display = 'none';
+          }, 2000);
+        })
+        .catch(err => {
+          console.error('Failed to copy invitation link: ', err);
+        });
+    }
+
+    async function createRoom() {
+      const roomName = document.getElementById('roomName').value;
+      const selectedUser = document.getElementById('userList').value;
+      const userName = document.getElementById('userList').selectedOptions[0].text;
+      
+      // Construct the data object to send to the API
+      const dataToSend = {
+        host: parsedUserDetails.user.id,
+        speakers: [selectedUser],
+        roomName: roomName,
+        roomReferenceId:hashLink,
+        invitationLink:invitationLink 
+      };
+
+      try {
+        const response = await fetch('/create-room', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${parsedUserDetails.token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(dataToSend)
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create room');
+        }
+        
+        const responseData = await response.json();
+        console.log('Room created successfully:', responseData);
+        // Optionally, redirect to the room page or perform any other actions
+      } catch (error) {
+        console.error('Error creating room:', error);
+        // Handle the error appropriately
+      }
+    }

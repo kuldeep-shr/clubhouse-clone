@@ -1,0 +1,145 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Room
+    style.
+      body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+          background-color: #f2f2f2; /* Background color */
+      }
+
+      .container {
+          max-width: 800px;
+          margin: 20px auto;
+          padding: 20px;
+          background-color: #fff; /* Card background color */
+          border-radius: 10px;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .header {
+          text-align: center;
+          margin-bottom: 20px;
+      }
+
+      .main-host {
+          background-color: #EFEFEF; 
+          padding: 10px;
+          border-radius: 5px;
+      }
+
+      .other-hosts {
+          background-color: #F5F5F5;
+          padding: 10px;
+          border-radius: 5px;
+      }
+
+      .profile-cards {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 20px;
+      }
+
+      .profile-cards h2 {
+          font-size: 18px;
+          margin-bottom: 10px;
+      }
+
+      .profile-cards .host {
+          margin-bottom: 10px;
+      }
+
+      .profile-cards .host-container {
+          width: 80px;
+          height: 80px;
+          margin:10px;
+      }
+
+
+      .controls {
+          display: flex;
+          justify-content: center;
+      }
+
+      .controls button {
+          margin: 0 10px;
+          padding: 10px 20px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+      }
+
+      #mic-btn.active {
+          background-color: #7CFC00; /* Light green when active */
+      }
+  body
+    .container
+      .header
+        h1 Room
+      .profile-cards
+        .main-host
+          .host-container(style="background-color: #000000;")
+        .other-hosts
+          .host-container(style="background-color: #000000;")
+      .controls
+        button#mic-btn Mic
+        button#end-btn End
+        button#message-btn Message
+        button#hand-raise-btn ✋
+    script.
+
+        // Establish WebSocket connection
+      const ws = new WebSocket('ws://localhost:3000');
+
+      // WebSocket event listeners
+      ws.addEventListener('open', () => {
+        console.log('WebSocket connection established.');
+      });
+
+      ws.addEventListener('message', event => {
+        console.log('Message received:', event.data);
+      });
+
+      ws.addEventListener('close', () => {
+        console.log('WebSocket connection closed.');
+      });
+      // JavaScript logic
+      // Function to toggle mic button color
+      function toggleMic() {
+        const micBtn = document.getElementById('mic-btn');
+        micBtn.classList.toggle('active'); // Toggle 'active' class on mic button
+      }
+
+      // Event listener for mic button click
+      document.getElementById('mic-btn').addEventListener('click', () => {
+        // Call function to toggle mic button color
+        toggleMic();
+      });
+
+      // Example array of user objects
+      const users = [
+        { username: 'Host 1' },
+        { username: 'Host 2' },
+      ];
+
+      // Function to add user profile cards
+      function addUserProfileCards(users) {
+        const otherHostsContainer = document.querySelector('.other-hosts');
+        users.forEach(user => {
+          const hostCard = document.createElement('div');
+          hostCard.classList.add('host');
+          hostCard.innerHTML = `
+            <div class="host-container" style="background-color: #00000;">
+              <p>${user.username}</p>
+            </div>
+          `;
+          otherHostsContainer.appendChild(hostCard);
+        });
+      }
+
+      // Add user profile cards to the DOM
+      addUserProfileCards(users);

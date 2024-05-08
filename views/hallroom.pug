@@ -1,0 +1,164 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Dashboard
+    style.
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      header {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 10px;
+        background-color: #f0f0f0;
+      }
+      .notification-bell {
+        position: relative;
+        margin-right: 20px;
+      }
+      .notification-dot {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 10px;
+        height: 10px;
+        background-color: red;
+        border-radius: 50%;
+        display: none; /* Initially hide the dot */
+      }
+      .notification-count {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: red;
+        color: white;
+        border-radius: 50%;
+        padding: 5px;
+        font-size: 12px;
+      }
+      .profile-button {
+        cursor: pointer;
+      }
+      main {
+        padding: 20px;
+      }
+      .room-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        grid-gap: 20px;
+      }
+      .room-box {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      footer {
+        text-align: center;
+        padding: 20px;
+      }
+      #start-room-button {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      #start-room-button:hover {
+        background-color: #0056b3;
+      }
+      .profile-details {
+        position: absolute;
+        top: 60px;
+        right: 20px;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        display: none;
+      }
+      .profile-details.active {
+        display: block;
+      }
+
+  body
+    header
+      .notification-bell
+        // Placeholder bell icon
+        i.fa.fa-bell
+        span.notification-dot 
+        span.notification-count 3 
+      .profile-button(onclick="toggleProfileDetails()")
+        // Placeholder profile button icon
+        i.fa.fa-user
+      .profile-details#profileDetails
+        // Placeholder profile details
+        h3 User Profile
+        p Name: John Doe
+        p Email: john@example.com
+        p Role: Admin
+
+    main
+      h1 Welcome to Your Dashboard
+      .room-container
+        // Placeholder room boxes
+
+    footer
+      button#start-room-button(onclick="openNewRoomPug()") Start a Room
+
+  script.
+    // Example room data
+    const rooms = [
+      { name: "Room 1", description: "Description for Room 1" },
+      { name: "Room 2", description: "Description for Room 2" },
+      { name: "Room 3", description: "Description for Room 3" }
+    ];
+
+    function openNewRoomPug() {
+
+        //- fetch('/room', {
+        //-   method: 'POST',
+        //-   headers: {
+        //-     'Content-Type': 'application/json'
+        //-   },
+        //-   body: JSON.stringify(removedUsers)
+        //- })
+        //- .then(response => response.json())
+        //- .then(data => {
+        //-   console.log('API response:', data);
+        //- })
+        //- .catch(error => console.error('Error calling API:', error));
+       window.location.href = "/room";
+    }
+
+    function toggleProfileDetails() {
+      var profileDetails = document.getElementById('profileDetails');
+      profileDetails.classList.toggle('active');
+    }
+
+    // Function to create room boxes dynamically
+    function createRoomBoxes() {
+      const roomContainer = document.querySelector('.room-container');
+      rooms.forEach(room => {
+        const roomBox = document.createElement('div');
+        roomBox.classList.add('room-box');
+        const roomName = document.createElement('h2');
+        roomName.textContent = room.name;
+        const roomDescription = document.createElement('p');
+        roomDescription.textContent = room.description;
+        roomBox.appendChild(roomName);
+        roomBox.appendChild(roomDescription);
+        roomContainer.appendChild(roomBox);
+      });
+    }
+
+    // Call the function to create room boxes
+    createRoomBoxes();
