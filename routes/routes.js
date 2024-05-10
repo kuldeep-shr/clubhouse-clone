@@ -9,10 +9,10 @@ import roomController from "../controller/RoomController.js";
 
 router.get("/signup", authController.renderSignUpForm);
 router.get("/signin", authController.renderSignInForm);
-router.get("/room", verifyToken, userController.renderRoom);
-router.get("/dashboard", verifyToken, userController.renderHallRoom);
-router.get("/meeting", verifyToken, roomController.meeting);
-router.get("/users", verifyToken, userController.listOfUsers);
+router.get("/room", userController.renderRoom);
+router.get("/dashboard", userController.renderHallRoom);
+router.get("/meeting", roomController.meeting);
+router.get("/users", userController.listOfUsers);
 
 router.post("/signup", authController.signUp);
 router.post("/signin", authController.signIn);
@@ -23,8 +23,5 @@ router.post(
 );
 router.post("/create-room", verifyToken, roomController.createRoom);
 router.post("/meeting", verifyToken, roomController.joinMeeting);
-
-//route for invitation link creation
-//route for accept the link invitation and validates
 
 export default router;

@@ -9,22 +9,28 @@ import Notification from "../models/Notification.js";
 //   "../clubhouse-clone-a2eb5-firebase-adminsdk-qfy3t-f1b824d8b4.json";
 const userController = {};
 
-userController.renderMeetingRoom = async (req, res) => {
-  // Render the sign-up form view
-  return renderSuccessPage(res, "", "meeting", {}, 200);
-};
 userController.renderRoom = async (req, res) => {
+  try {
+    return renderSuccessPage(res, "", "roomInfo", {}, 200);
+  } catch (error) {
+    return renderErrorPage(res, "Internal server error", "roomInfo", {}, 400);
+  }
   // Render the sign-up form view
-  return renderSuccessPage(res, "", "roomInfo", {}, 200);
 };
 userController.renderHallRoom = async (req, res) => {
-  // Render the sign-up form view
-  return renderSuccessPage(res, "", "dashboard", {}, 200);
+  try {
+    return renderSuccessPage(res, "", "dashboard", {}, 200);
+  } catch (error) {
+    return renderErrorPage(res, "Internal server error", "dashboard", {}, 400);
+  }
 };
 
 userController.renderMainRoom = async (req, res) => {
-  // Render the sign-up form view
-  return renderSuccessPage(res, "", "main", {}, 200);
+  try {
+    return renderSuccessPage(res, "", "main", {}, 200);
+  } catch (error) {
+    return renderErrorPage(res, "Internal server error", "main", {}, 400);
+  }
 };
 
 userController.saveNotifications = async (req, res) => {

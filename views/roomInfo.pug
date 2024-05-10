@@ -131,9 +131,9 @@ html(lang="en")
         const data = await response.json();
         console.log("users list",data)
         return data;
-      } catch (error) {
+      } catch (error) { 
         console.error('Error fetching user list:', error);
-        showError(error.message); // Show error message
+        showError(error.message);
         return [];
       }
     }
@@ -173,7 +173,7 @@ html(lang="en")
         hashLink = await createHash(input);
 
       // Logic to generate invitation link based on role
-      invitationLink = `http://localhost:8080/meeting?room=${hashLink}&username=${parsedUserDetails.user.name}`;
+      invitationLink = `http://localhost:8080/meeting?room=${hashLink}`;
       const invitationLinkDiv = document.getElementById('invitationLink');
       invitationLinkDiv.style.display = 'block';
       document.getElementById('linkContent').textContent = invitationLink;
@@ -245,8 +245,6 @@ html(lang="en")
           }
 
           const anotherData = await anotherResponse.json();
-          console.log('Another API response:', anotherData,"anotherData.data[0].redirectTo",anotherData.data[0].redirectTo,"anotherData.data[0].data",anotherData.data[0].data);
-
           // Construct the redirect URL
           const redirectUrl = anotherData.data[0].redirectTo + '?data=' + encodeURIComponent(anotherData.data[0].data) + '&token=' + encodeURIComponent(args.token);;
           

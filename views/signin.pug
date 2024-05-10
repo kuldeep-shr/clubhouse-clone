@@ -80,7 +80,7 @@ html(lang="en")
       if error
         .error-card
           p.error-message= error
-      form(method="POST" onsubmit="return userSignIn()")
+      div(onclick="userSignIn()")
         .input-group
           label(for="email") Email
           input(type="email", id="email", name="email", placeholder="Enter your email", required)
@@ -109,11 +109,8 @@ html(lang="en")
           const additionalData = { id: data.data.id , name: data.data.name };
           const dataToStore = { token: token, user: additionalData };
           localStorage.setItem('userData', JSON.stringify(dataToStore));
-          // Construct the redirect URL
-          const redirectUrl = "/dashboard" + '?token=' + encodeURIComponent(token)
-          
-          // Redirect the user to the new URL
-          window.location.replace(redirectUrl);
+          window.location.href = '/dashboard';
+
         } else {
           // Registration failed
           const error = data.message || 'Login failed.';
@@ -124,7 +121,4 @@ html(lang="en")
         console.error('Error:', error);
         document.querySelector('.error-message').textContent = 'Internal server error. Please try again later.';
       });
-      
-      // Prevent form submission
-      return false;
     }

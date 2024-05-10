@@ -143,7 +143,6 @@ html(lang="en")
       })
       .then(response => response.json())
       .then(data => {
-        console.log("DATAT", data)
         if (data.data.token) {
           // Registration successful
           const token = data.data.token;

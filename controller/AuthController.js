@@ -22,9 +22,7 @@ authController.renderSignInForm = (req, res) => {
 
 authController.signUp = async (req, res) => {
   try {
-    console.log("IN REGISTER API....");
     const { username, email, password } = req.body;
-    // Check if email already exists in the database
     const existingUser = await User.findOne({ email: email });
     if (existingUser) {
       return renderErrorPage(res, "Email already exists", "signup", {}, 400);
@@ -62,9 +60,7 @@ authController.signUp = async (req, res) => {
 
 // Controller function for user sign-in
 authController.signIn = async (req, res) => {
-  console.log("SIGN IN.....");
   const { email, password } = req.body;
-  console.log("req.body", req.body);
   try {
     // Find the user by username
     const user = await User.findOne({ email: email });
@@ -91,10 +87,8 @@ authController.signIn = async (req, res) => {
       token: getSignToken,
       token_validity: "2hr",
     };
-    // renderSuccessPage(res, "login successfully", "dashboard", dataToSend, 200);
     return successfullApiResponse(res, dataToSend, "login successfully", 200);
   } catch (error) {
-    console.error("Error signing in:", error);
     renderErrorPage(res, "Internal server error", "signin");
   }
 };
