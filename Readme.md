@@ -17,6 +17,7 @@ Welcome to the Simple Clubhouse Clone.
 # 🔧 **Technologies Used** <br />
 
 **Node.js:** JavaScript runtime for building the server-side application. <br />
+**Websocket:** Network protocol for communication <br />
 **Express.js:** Web application framework for Node.js. <br />
 **MongoDB:** RDBMS database for storing data. <br />
 **JWT:** JSON Web Tokens for user authentication and authorization
