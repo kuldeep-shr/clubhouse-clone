@@ -1,0 +1,402 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(http-equiv="X-UA-Compatible", content="IE=edge")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Clubhouse Room
+    style.
+        body{
+            padding: 0;
+            margin: 0;
+            background-color: #eef2b9;
+        }
+
+        .centered{
+            position:relative;
+            top:50%;
+            left:50%;
+            transform:translate(-50%,-50%)
+        }
+
+        #main-div {
+            display: flex;
+            flex-direction: row;
+        }
+
+        #video-grid {
+            height: 90vh;
+            width: 1000px;
+            display: flex;
+            justify-content: start;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            margin: 1px solid black;
+        }
+
+        #screen-share-grid {
+            display: hidden;
+            height: 90vh;
+            width: 1000px;
+        }
+
+        #screen-share-grid video {
+            display: hidden;
+            height: 80vh;
+            width: 900px;
+            object-fit: contain;
+        }
+
+        #form {
+            background-color: #F1F3F4;
+            border-radius: 1.5rem;
+        }
+
+        input {
+            width: 80%;
+            height: 3rem;
+            border-radius: 1.5rem;
+            border: none;
+            background-color: #F1F3F4;
+            padding-left: 1rem;
+        }
+
+        input:focus {
+            outline: none;
+        }
+
+        button {
+            border: none;
+            background-color: #F1F3F4;
+            font-size: 1.3rem;
+            color: #1A73E8;
+            cursor: pointer;
+        }
+
+        .user-video {
+            cursor: pointer;
+        }
+
+        video {
+            width: 250px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: .5rem;
+            margin: .5rem;
+            cursor: pointer;
+        }
+
+        .user-video:hover {
+            opacity: .6;
+            transition: opacity .5s ease-in-out;
+        }
+        #controls-tab {
+            background-color: #eef2b9;
+            width: 100%;
+            height: 10vh;
+            display: flex;
+            justify-content: space-between;
+            flex-direction: row;
+            margin-right: 2rem;
+        }
+
+        .icons {
+            display: flex;
+            justify-content: space-between;
+            margin-right:600px;
+            flex-direction: row;
+        }
+
+        #time {
+            color: white;
+            margin-right: 4rem;
+            font-family: sans-serif;
+            padding-left: 2rem;
+            font-size: 1.2rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            border-radius: 50%;
+            height: 33px;
+            width: 45px;
+            font-size: 1.1rem;
+            color: white;
+            margin-right: 1rem;
+            background-color: #434649;
+            text-align: center;
+            padding-top: 12px;
+            cursor: pointer;
+        }
+
+        a .end-btn {
+            text-decoration: none;
+        }
+        .end-btn {
+            background-color: tomato;
+            color: white;
+            width: 60px;
+            padding-top: 12px;
+            height: 30px;
+            border-radius: 2rem;
+            font-size: 1.1rem;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .end-btn i {
+            transform: rotateY(-180deg);
+        }
+
+        .end-btn:hover {
+            background-color: rgb(250, 64, 32);
+            transition: background-color .5s ease-in-out;
+        }
+
+        .btn:hover {
+            background-color: #3a3c3d;
+            transition: background-color .5s ease-in-out;
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
+        video {
+            position: relative;
+            z-index: -1;
+        }
+        .user-name {
+            position: absolute;
+            font-family: sans-serif;
+            color: white;
+            margin-top: -2rem;
+            margin-left: 1rem;
+            font-size: .7rem;
+            z-index: 5;
+        }
+  body
+    #main-div
+      #video-grid
+      #screen-share-grid
+    #controls-tab
+      #time
+      .icons
+        .btn#mute
+          i.fa.fa-microphone
+        .btn#video-off
+          i.fa.fa-video-camera
+        .btn#screen-share-btn
+            img(src='https://icons.iconarchive.com/icons/google/noto-emoji-people-bodyparts/256/12050-waving-hand-icon.png',style="width:22px;height:22px" alt='Your Image')
+        a(href="/dashboard")
+          .end-btn
+            i.fa.fa-phone(aria-hidden="true")
+    script(src="https://code.jquery.com/jquery-3.6.0.min.js", integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=", crossorigin="anonymous")
+    script(src="https://kit.fontawesome.com/6f0f83005a.js", crossorigin="anonymous")
+    script(src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js")
+    script.
+        const extractRoomName = !{JSON.stringify(roomName)}
+        console.log("You can now access serverData here",extractRoomName)        
+
+        const socket = new WebSocket('ws://localhost:8080');
+        const videoGrid = document.getElementById('video-grid');
+
+        const myPeer = new Peer();
+        let count = 0;
+        let myVideoStream; 
+        const myVideo = document.createElement('video');
+        let currentPeer = null;
+        myVideo.muted = true;
+        const peers = {};
+        const names = {};
+        const userName = prompt("Please enter your name", "");
+
+        navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true
+        }).then(stream => {
+            myVideoStream = stream;
+            addVideoStream(myVideo, stream, userName);
+
+            myPeer.on('call', call => {
+                console.log('Incoming call from:', call.peer);
+                call.answer(stream);
+                console.log('Hello')
+                const video = document.createElement('video');
+                let html = '<i class="fas fa-microphone"></i>'
+                video.innerHTML = html;
+                call.on('stream', userVideoStream => {
+                    console.log('video displayed');
+                    addVideoStream(video, userVideoStream, userName)
+                })
+                currentPeer = call;
+            })
+            socket.onopen = function(event) {
+                socket.send(JSON.stringify({ type: 'user-connected', data: userName }));
+            };
+
+        })
+        .catch(error => {
+            // Handle errors, such as permission denied
+            console.error('Error accessing user media:', error)
+        })
+        socket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            switch(data.type) {
+                case 'user-disconnected':
+                    const userId = data.data;
+                    if (peers[userId]) peers[userId].close();
+                    break;
+                case 'recieve-message':
+                    const { inputMsg, userName } = data.data;
+                    inputMsg = urlify(inputMsg);
+                    $('#messages').append(`<li><b style="font-size:.9rem">${userName}</b>&nbsp;${formatAMPM(new Date)}<br/><br/>${inputMsg}</li>`);
+                    console.log('From server :: ', inputMsg);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        myPeer.on('open', id => {
+            socket.send(JSON.stringify({ type: 'join-room', data: { roomId: extractRoomName, userId: id, userName: userName } }));
+        })
+
+        function connectToNewUser(userId, userName, stream) {
+            const call = myPeer.call(userId, stream);
+            const video = document.createElement('video');
+            call.on('stream', userVideoStream => {
+                addVideoStream(video, userVideoStream, userName);
+            })
+            call.on('close', () => {
+                video.remove();
+            })
+            peers[userId] = call
+            currentPeer = call;
+        }
+
+        function addVideoStream(video, stream, userName) {
+            video.srcObject = stream;
+            video.addEventListener('loadedmetadata', () => {
+                video.play();
+            });
+            let outerDiv = document.createElement('div');
+            outerDiv.classList.add('user-video');
+            outerDiv.setAttribute('id', 'video-' + count);
+            count++;
+            outerDiv.appendChild(video);
+            let nameDiv = document.createElement('div');
+            let pinDiv = document.createElement('div');
+            nameDiv.classList.add('user-name');
+            nameDiv.innerHTML = userName;
+            outerDiv.appendChild(nameDiv);
+            videoGrid.appendChild(outerDiv);
+        }
+
+        function muteUnmuteUser() {
+            let enabled = myVideoStream.getAudioTracks()[0].enabled;
+            if (enabled == true) {
+                myVideoStream.getAudioTracks()[0].enabled = false;
+                setUnmuteAudio();
+            } else {
+                myVideoStream.getAudioTracks()[0].enabled = true;
+                setMuteAudio();
+            }
+        }
+
+        function turnUserVideoOnOff() {
+            let enabled = myVideoStream.getVideoTracks()[0].enabled;
+            if (enabled == true) {
+                myVideoStream.getVideoTracks()[0].enabled = false;
+                setStopVideo()
+            } else {
+                setPlayVideo()
+                myVideoStream.getVideoTracks()[0].enabled = true;
+            }
+        }
+
+        function setPlayVideo() {
+            const html = `<i class="fas fa-video"></i>`
+            document.getElementById('video-off').innerHTML = html;
+            document.getElementById('video-off').style.backgroundColor = '#434649';
+        }
+
+        function setStopVideo() {
+            const html = `<i class="stop fas fa-video-slash"></i>`
+            document.getElementById('video-off').innerHTML = html;
+            document.getElementById('video-off').style.backgroundColor = 'tomato';
+        }
+
+        function setMuteAudio() {
+            const html = `<i class="fas fa-microphone"></i>`
+            document.getElementById('mute').innerHTML = html;
+            document.getElementById('mute').style.backgroundColor = '#434649';
+        }
+
+        function setUnmuteAudio() {
+            const html = `<i class="unmute fas fa-microphone-slash"></i>`
+            document.getElementById('mute').innerHTML = html;
+            document.getElementById('mute').style.backgroundColor = 'tomato';
+        }
+
+        document.getElementById('video-off').addEventListener('click', turnUserVideoOnOff);
+        document.getElementById('mute').addEventListener('click', muteUnmuteUser);
+
+        function urlify(text) {
+            let urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.replace(urlRegex, function(url) {
+            return '<a href="' + url + '">' + url + '</a>';
+            })
+        }
+        
+
+        $('form').submit(function (e) {
+            e.preventDefault();
+            let inputMsg = $('input').val();
+            if (inputMsg != '')
+                socket.send(JSON.stringify({ type: 'send-message', data: { message: inputMsg, userName: userName } }));
+            $('input').val('');
+        })
+
+        const scrollToBottom = () => {
+            let d = $('#chats');
+            d.scrollTop(d.prop("scrollHeight"));
+        }
+        scrollToBottom();
+
+
+        let isExpanded = false;
+        document.addEventListener('click', function(e) {
+            let clickedElem = e.target;
+            let clickedElemId = e.target.id;
+            if(isExpanded == false) {
+                console.log(clickedElem);
+                if(clickedElem.classList.contains('user-video')) {
+                    let ele = document.getElementById(clickedElemId);
+                    ele.firstChild.style.height = "80vh";
+                    ele.firstChild.style.width = "70vw";
+                    isExpanded = true;
+                    let arr = document.getElementsByClassName('user-video');
+                    for(let i=0;i<arr.length;i++) {
+                        let elem = arr[i];
+                        if(elem.id != clickedElemId) {
+                            elem.style.display = "none";
+                        }
+                    }
+                }
+            
+            }else {
+                if(clickedElem.classList.contains('user-video')) {
+                    let ele = document.getElementById(clickedElemId);
+                    ele.firstChild.style.height = "150px";
+                    ele.firstChild.style.width = "250px";
+                    document.getElementById('video-grid').style.display = "flex";
+                    isExpanded = false;
+                    let arr = document.getElementsByClassName('user-video');
+                    for(let i=0;i<arr.length;i++) {
+                    arr[i].style.display = "flex";
+                    }
+                }
+            }
+            
+        })

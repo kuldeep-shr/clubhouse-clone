@@ -152,7 +152,7 @@ html(lang="en")
           const dataToStore = { token: token, user: additionalData };
           localStorage.setItem('userData', JSON.stringify(dataToStore));
           console.log("SET STORAGE TOKEN...", token)
-          window.location.href = '/hallroom';
+          window.location.href = '/dashboard';
         } else {
           // Registration failed
           const error = data.message || 'Registration failed.';

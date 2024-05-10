@@ -3,6 +3,10 @@ import {
   renderErrorPage,
   successfullApiResponse,
 } from "../utils/helper.js";
+import Notification from "../models/Notification.js";
+// import admin from "firebase-admin";
+// const serviceAccount =
+//   "../clubhouse-clone-a2eb5-firebase-adminsdk-qfy3t-f1b824d8b4.json";
 const userController = {};
 
 userController.renderMeetingRoom = async (req, res) => {
@@ -11,16 +15,26 @@ userController.renderMeetingRoom = async (req, res) => {
 };
 userController.renderRoom = async (req, res) => {
   // Render the sign-up form view
-  return renderSuccessPage(res, "", "room", {}, 200);
+  return renderSuccessPage(res, "", "roomInfo", {}, 200);
 };
 userController.renderHallRoom = async (req, res) => {
   // Render the sign-up form view
-  return renderSuccessPage(res, "", "hallroom", {}, 200);
+  return renderSuccessPage(res, "", "dashboard", {}, 200);
 };
 
 userController.renderMainRoom = async (req, res) => {
   // Render the sign-up form view
   return renderSuccessPage(res, "", "main", {}, 200);
+};
+
+userController.saveNotifications = async (req, res) => {
+  try {
+    const { title, message } = req.body;
+    const newNotification = new Notification({ title, message });
+    await newNotification.save();
+  } catch (error) {
+    console.error("Error sending push notification:", error);
+  }
 };
 
 userController.listOfUsers = async (req, res) => {

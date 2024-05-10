@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema({
         `${props.value} is not a valid password. Password must contain at least 5 characters, including one uppercase letter, one lowercase letter, and one number.`,
     },
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 // Hash the password before saving to the database

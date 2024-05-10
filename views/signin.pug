@@ -80,7 +80,7 @@ html(lang="en")
       if error
         .error-card
           p.error-message= error
-      form(action="/signin", method="POST")
+      form(method="POST" onsubmit="return userSignIn()")
         .input-group
           label(for="email") Email
           input(type="email", id="email", name="email", placeholder="Enter your email", required)
@@ -90,7 +90,7 @@ html(lang="en")
         button(type="submit") Sign In
 
   script.
-    function userSignUp() {
+    async function userSignIn() {
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
       fetch('/signin', {
@@ -103,17 +103,20 @@ html(lang="en")
       .then(response => response.json())
       .then(data => {
         if (data.data.token) {
-          // Registration successful
+
+          // Login successful
           const token = data.data.token;
-          console.log("data",data.data)
           const additionalData = { id: data.data.id , name: data.data.name };
           const dataToStore = { token: token, user: additionalData };
           localStorage.setItem('userData', JSON.stringify(dataToStore));
-          console.log("SET STORAGE TOKEN...", token)
-          window.location.href = '/hallroom';
+          // Construct the redirect URL
+          const redirectUrl = "/dashboard" + '?token=' + encodeURIComponent(token)
+          
+          // Redirect the user to the new URL
+          window.location.replace(redirectUrl);
         } else {
           // Registration failed
-          const error = data.message || 'Registration failed.';
+          const error = data.message || 'Login failed.';
           document.querySelector('.error-message').textContent = error;
         }
       })
@@ -121,6 +124,7 @@ html(lang="en")
         console.error('Error:', error);
         document.querySelector('.error-message').textContent = 'Internal server error. Please try again later.';
       });
+      
       // Prevent form submission
       return false;
     }

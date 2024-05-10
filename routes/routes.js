@@ -7,19 +7,22 @@ import authController from "../controller/AuthController.js";
 import userController from "../controller/UserController.js";
 import roomController from "../controller/RoomController.js";
 
-//renders
 router.get("/signup", authController.renderSignUpForm);
 router.get("/signin", authController.renderSignInForm);
-router.get("/meeting", userController.renderMeetingRoom); //tmp
-router.get("/room", userController.renderRoom); //tmp
-router.get("/hallroom", userController.renderHallRoom); //tmp
-router.get("/main", userController.renderMainRoom); //tmp
+router.get("/room", verifyToken, userController.renderRoom);
+router.get("/dashboard", verifyToken, userController.renderHallRoom);
+router.get("/meeting", verifyToken, roomController.meeting);
+router.get("/users", verifyToken, userController.listOfUsers);
 
-//api for signup
 router.post("/signup", authController.signUp);
 router.post("/signin", authController.signIn);
-router.get("/users", verifyToken, userController.listOfUsers);
+router.post(
+  "/save-notifications",
+  verifyToken,
+  userController.saveNotifications
+);
 router.post("/create-room", verifyToken, roomController.createRoom);
+router.post("/meeting", verifyToken, roomController.joinMeeting);
 
 //route for invitation link creation
 //route for accept the link invitation and validates

@@ -1,6 +1,13 @@
-import crypto from "crypto";
+import { server } from "../app.js";
 import Room from "../models/Room.js";
-import { successfullApiResponse, errorApiResponse } from "../utils/helper.js";
+import User from "../models/User.js";
+
+import {
+  successfullApiResponse,
+  errorApiResponse,
+  renderErrorPage,
+  renderSuccessPage,
+} from "../utils/helper.js";
 const roomController = {};
 
 // Controller function to create a new room
@@ -16,6 +23,7 @@ roomController.createRoom = async (req, res) => {
       host: host,
       speakers: speakers,
       roomReferenceId: roomReferenceId,
+      isActive: true,
     });
 
     // Save the new room to the database
@@ -34,9 +42,63 @@ roomController.createRoom = async (req, res) => {
       201
     );
   } catch (error) {
-    // Handle errors
     console.error("Error creating room:", error);
     return errorApiResponse(res, "Internal server error", 500);
+  }
+};
+
+roomController.meeting = async (req, res) => {
+  try {
+    const isRoomExists = await Room.findOne({
+      roomReferenceId: req.query.data,
+    });
+    if (!isRoomExists) {
+      return renderErrorPage(
+        res,
+        "either room is not exist or has been closed",
+        "roomInfo",
+        {},
+        400
+      );
+    }
+    console.log("isRoomExists", isRoomExists);
+    return renderSuccessPage(
+      res,
+      "",
+      "roomReal",
+      { roomName: isRoomExists.roomReferenceId },
+      200
+    );
+  } catch (error) {
+    console.log("z-error", error);
+  }
+};
+
+roomController.joinMeeting = async (req, res) => {
+  try {
+    console.log("I am req.body");
+    const { roomReferenceId } = req.body;
+
+    const isRoomExists = await Room.findOne({
+      roomReferenceId: roomReferenceId,
+    });
+    if (!isRoomExists) {
+      return renderErrorPage(
+        res,
+        "either room is not exist or has been closed",
+        "roomInfo",
+        {},
+        400
+      );
+    }
+    return successfullApiResponse(
+      res,
+      [{ redirectTo: "/meeting", data: roomReferenceId }],
+      "success",
+      200
+    );
+  } catch (error) {
+    console.log("error", error);
   }
 };
 

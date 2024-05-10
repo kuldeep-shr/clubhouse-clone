@@ -26,7 +26,7 @@ const roomSchema = new mongoose.Schema({
   // Indicates whether the room is active or not
   isActive: {
     type: Boolean,
-    default: true,
+    default: false,
   },
 
   // Unique identifier for the room

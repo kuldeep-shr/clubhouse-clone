@@ -47,7 +47,6 @@ authController.signUp = async (req, res) => {
       token: getSignToken,
       token_validity: "2hr",
     };
-    // return renderSuccessPage(res, "", "room", { user: dataToSend }, 201);/\
     return successfullApiResponse(
       res,
       dataToSend,
@@ -63,7 +62,7 @@ authController.signUp = async (req, res) => {
 
 // Controller function for user sign-in
 authController.signIn = async (req, res) => {
-  console.log("in controller");
+  console.log("SIGN IN.....");
   const { email, password } = req.body;
   console.log("req.body", req.body);
   try {
@@ -71,23 +70,16 @@ authController.signIn = async (req, res) => {
     const user = await User.findOne({ email: email });
     console.log("user", user);
     if (!user) {
-      apiResponse.renderErrorPage(
-        res,
-        "Invalid credentials",
-        "signin",
-        {},
-        400
-      );
-      return null;
+      return renderErrorPage(res, "user is not exist", "signin", 400);
     }
 
     // Compare the provided password with the hashed password in the database
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      apiResponse.error(res, "login not match", 400);
+      return renderErrorPage(res, "Invalid credentials", "signin", 400);
     }
 
-    const getSignToken = await signToken({
+    const getSignToken = signToken({
       id: user._id,
       email: user.email,
     });
@@ -99,11 +91,11 @@ authController.signIn = async (req, res) => {
       token: getSignToken,
       token_validity: "2hr",
     };
-    // Send a success response
-    apiResponse.success(res, dataToSend, "login match");
+    // renderSuccessPage(res, "login successfully", "dashboard", dataToSend, 200);
+    return successfullApiResponse(res, dataToSend, "login successfully", 200);
   } catch (error) {
     console.error("Error signing in:", error);
-    apiResponse.renderErrorPage(res, "Internal server error", "signin");
+    renderErrorPage(res, "Internal server error", "signin");
   }
 };
 
