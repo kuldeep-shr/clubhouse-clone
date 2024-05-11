@@ -1,4 +1,5 @@
-# ♣️ CLubhouse Clone
+![image](https://github.com/kuldeep-shr/clubhouse-clone/assets/70407952/9a738137-71d4-4319-bfe0-2e8fc58e926b)
+# CLubhouse Clone
 
 Welcome to the Simple Clubhouse Clone.
 
